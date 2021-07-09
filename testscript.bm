@@ -1,0 +1,33 @@
+define entity player {
+    radius 2
+    imagescale exact
+    type player
+    color red
+    layer 0
+}
+
+define float playerx 0
+define float playery 0
+define float playerspeed 2
+define bool playerdeath false
+
+define procedure createplayer saction {
+    sync player <> simple <0 (t * 0.3) 0 0 0> {
+        root 0 -4
+    }
+    entity-control until-trigger { type: player } (y > -3.5) {
+        resetpath
+        applypath <(playerx * playerspeed) (playery * playerspeed) 0 0 0>
+    }
+    set playerx 0
+    set playery 0
+}
+
+paction
+    createplayer
+    entity-control persist { type: player } (collide { bullet enemy } proc {
+        remove this
+        set playerdeath true
+        wait(0.5)
+        createplayer
+    })
